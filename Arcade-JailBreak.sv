@@ -381,7 +381,7 @@ wire  [5:0]	INP0 = { m_trig12, m_trig11, {m_left1, m_down1, m_right1, m_up1} };
 wire  [5:0]	INP1 = { m_trig22, m_trig21, {m_left2, m_down2, m_right2, m_up2} };
 wire  [3:0]	INP2 = { m_coin2, m_coin1, m_start2, m_start1 };
 
-FPGA_GreenBeret GameCore (
+FPGA_JailBreak GameCore (
 	.reset(iRST),.clk48M(clk_48M),
 	.INP0(INP0),.INP1(INP1),.INP2(INP2),
 	.DSW0(~dsw[0]),.DSW1(~dsw[1]),.DSW2(~dsw[2]),
@@ -448,7 +448,6 @@ module HVGEN
 	input signed [4:0] HOFFS,
 	input signed [3:0] VOFFS
 );
-
 // 396x256. V-sync: 60.(60)Hz, H-Sync 15.(51)KHz, Pixel Clock: 6.144MHz
 
 localparam [8:0] width = 396;
@@ -465,7 +464,6 @@ wire [8:0] HS_E =  32+HS_B;
 wire [8:0] VS_B = 226+VOFFS;
 wire [8:0] VS_E =   6+VS_B;
 
-
 always @(posedge PCLK) begin
 	if (hcnt < width-1)
 		hcnt <= hcnt+9'd1;
@@ -480,4 +478,6 @@ always @(posedge PCLK) begin
 	oRGB <= (HBLK|VBLK) ? 12'h0 : iRGB;
 end
 
+
 endmodule
+

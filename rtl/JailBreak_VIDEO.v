@@ -26,7 +26,7 @@ module VIDEO
 	input	  [7:0]	CPUWD,
 	output			CPUDV,
 	output  [7:0]	CPURD,
-	
+
 
 	input				DLCL,
 	input  [17:0]  DLAD,
@@ -41,12 +41,12 @@ module VIDEO
 );
 
 // Video RAMs
-wire				CS_CRAM = ( CPUAD[15:11] ==  5'b1100_0              ) & CPUMX;	// $C000-$C7FF
-wire				CS_VRAM = ( CPUAD[15:11] ==  5'b1100_1              ) & CPUMX;	// $C800-$CFFF
-wire				CS_MRAM = ( CPUAD[15:12] ==  4'b1101                ) & CPUMX;	// $D000-$DFFF
-wire				CS_ZRM0 = ( CPUAD[15: 5] == 11'b1110_0000_000       ) & CPUMX;	// $E000-$E01F
-wire				CS_ZRM1 = ( CPUAD[15: 5] == 11'b1110_0000_001       ) & CPUMX;	// $E020-$E03F
-wire				CS_SPRB = ( CPUAD[15: 0] == 16'b1110_0000_0100_0011 ) & CPUMX;	// $E043
+wire  CS_CRAM = ( CPUAD[15:11] ==  5'b0000_0              ) & CPUMX;	// $0000-$07FF
+wire  CS_VRAM = ( CPUAD[15:11] ==  5'b0000_1              ) & CPUMX;	// $0800-$0FFF
+wire  CS_MRAM = ( CPUAD[15:12] ==  4'b0001                ) & CPUMX;	// $1000-$1FFF
+wire  CS_ZRM0 = ( CPUAD[15: 5] == 11'b0010_0000_000       ) & CPUMX;	// $2000-$201F
+wire  CS_ZRM1 = ( CPUAD[15: 5] == 11'b0010_0000_001       ) & CPUMX;	// $2020-$203F
+wire  CS_SPRB = ( CPUAD[15: 0] == 16'b0010_0000_0100_0011 ) & CPUMX;	// $2043
 
 wire  [7:0]		OD_CRAM, OD_VRAM;
 wire  [7:0]		OD_MRAM;
@@ -98,13 +98,13 @@ wire  [8:0] BGHP = HP+9'd8+(ZRMD[8:0]);
 
 assign		ZRMA = BGVP[7:3];
 assign		BGVA = {BGVP[7:3],BGHP[8:3]};
-wire  [8:0] BGCH = {BGCR[6],BGVR};
+wire  [9:0] BGCH = {BGCR[7:6],BGVR};
 wire  [3:0] BGCL = BGCR[3:0];
 wire  [1:0] BGFL = BGCR[5:4];
 
 wire  [2:0] BGHH = BGHP[2:0]^{3{BGFL[0]}};
 wire  [2:0] BGVV = BGVP[2:0]^{3{BGFL[1]}};
-wire [13:0] BGCA = {BGCH,BGVV[2:0],BGHH[2:1]};
+wire [14:0] BGCA = {BGCH,BGVV[2:0],BGHH[2:1]};
 wire  [0:7] BGCD;
 BGCHIP_ROM	bgchip( VCLKx2, BGCA, BGCD, DLCL,DLAD,DLDT,DLEN );
 
@@ -124,19 +124,20 @@ SPRRENDER	spr( VCLKx8,VCLK, SPHP,SPVP,SATA,SATD, SPPT, DLCL,DLAD,DLDT,DLEN );
 
 
 // Color Mixer
-wire [4:0] COLMIX = (BGHI & (|BGPT)) ? {1'b1,BGPT} : (|SPPT) ? {1'b0,SPPT} : {1'b1,BGPT}; 
+wire [4:0] COLMIX = (|SPPT) ? {1'b0,SPPT} : {1'b1,BGPT};
 
 
 // Palette
 wire [4:0] PALIN = PALD ? VP[6:2] : COLMIX;
-wire [7:0] PALET;
-PALET_ROM  palet( VCLK, PALIN, PALET, DLCL,DLAD,DLDT,DLEN );
-wire [7:0] PALOT = PALD ? ( (|VP[8:7]) ? 8'h0 : PALET ) : PALET;
+wire [7:0] PALET_gr, PALET_b;
+PALET_ROM  palette_gr( VCLK, PALIN, PALET_gr, DLCL,DLAD,DLDT,DLEN,0 );
+PALET_ROM  palette_b( VCLK, PALIN, PALET_b, DLCL,DLAD,DLDT,DLEN,1 );
+wire [11:0] PALET = {PALET_b[3:0],PALET_gr[7:4],PALET_gr[3:0]};
 
 
 // Pixel Output
 assign PCLK = ~VCLK;
-assign POUT = {PALOT[7:6],2'b00,PALOT[5:3],1'b0,PALOT[2:0],1'b0}; 
+assign POUT = PALD ? ( (|VP[8:7]) ? 12'h0 : PALET ) : PALET;
 
 endmodule
 
@@ -154,7 +155,7 @@ module SPRRENDER
 
 	output [7:0]		SATA,
 	input  [7:0]		SATD,
-	
+
 	output reg [3:0]	SPPT,
 
 

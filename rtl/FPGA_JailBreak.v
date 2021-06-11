@@ -3,7 +3,7 @@
 ********************************************************/
 // Copyright (c) 2013,19 MiSTer-X
 
-module FPGA_GreenBeret
+module FPGA_JailBreak
 (
 	input				clk48M,
 	input				reset,
@@ -20,22 +20,22 @@ module FPGA_GreenBeret
 	input   [8:0]  PH,         // PIXEL H
 	input   [8:0]  PV,         // PIXEL V
 	output         PCLK,       // PIXEL CLOCK (to VGA encoder)
-	output [11:0]	POUT, 	   // PIXEL OUT
+	output [11:0]  POUT, 	   // PIXEL OUT
 
-	output  [7:0]	SND,			// Sound Out
+	output  [7:0]  SND,			// Sound Out
 
 
 	input				ROMCL,		// Downloaded ROM image
 	input  [17:0]  ROMAD,
-	input   [7:0]	ROMDT,
+	input   [7:0]  ROMDT,
 	input				ROMEN,
 
 	input   [7:0]  title,
 	input				pause,
 
-	input	 [15:0]	hs_address,
-	input	 [7:0]	hs_data_in,
-	output [7:0]	hs_data_out,
+	input  [15:0]	hs_address,
+	input   [7:0]	hs_data_in,
+	output  [7:0]	hs_data_out,
 	input				hs_write,
 	input				hs_access
 );
@@ -49,7 +49,8 @@ wire   VCLKx4 = clk24M;
 wire   VCLKx2 = clk12M;
 wire   VCLK = clk6M;
 
-wire   CPUCLK = clk3M;
+// CPU overclocked for now to mitigate screen tearing
+wire   cpu_overclock = ~clk6M;
 wire   CPUCL = ~clk3M;
 
 
@@ -61,15 +62,17 @@ wire [15:0]	CPUAD;
 
 MAIN cpu
 (
-	CPUCLK, reset,
+	cpu_overclock, reset,
+
 	PH,PV,
 	INP0,INP1,INP2,
 	DSW0,DSW1,DSW2,
-	
+
 	CPUMX, CPUAD,
 	CPUWR, CPUWD,
 	VIDDV, VIDRD,
-	
+	vlm_busy,
+
 	ROMCL,ROMAD,ROMDT,ROMEN,
 
 	title,
@@ -104,6 +107,7 @@ SOUND snd
 	CPUCL,
 	CPUMX, CPUAD,
 	CPUWR, CPUWD,
+	vlm_busy,
 
 	pause
 );

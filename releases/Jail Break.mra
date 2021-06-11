@@ -1,0 +1,51 @@
+<misterromdescription>
+	<name>Jail Break</name>
+	<mameversion>0220</mameversion>
+	<setname>jailbrek</setname>
+	<mratimestamp>20210610000000</mratimestamp>
+	<year>1986</year>
+	<manufacturer>Konami</manufacturer>
+	<category>Platform / Shooter Scrolling</category>
+	<rbf>jailbreak</rbf>
+	<buttons names="Weapon,Shoot,Start 1P,Start 2P,Coin,Pause" default="A,B,Start,Select,R,L"/>
+	<switches default="a2,00,00">
+		<dip bits="0,1"    name="Lives" ids="1,2,3,5"/>
+		<!-- dip bits="2"      name="Cabinet" ids="Cocktail,Upright"/ -->
+		<dip bits="3"      name="Bonus Life"   ids="30K &amp; every 70K,40K &amp; every 80K"/>
+		<dip bits="4,5"    name="Difficulty"   ids="Easy,Normal,Difficult,Very Difficult"/>
+		<dip bits="7"      name="Demo Sounds"  ids="Off,On"/>
+		<!-- dip bits="8"      name="Flip Screen" ids="Off,On"/ -->
+		<dip bits="9"      name="Upright Controls" ids="Single,Dual"/>
+		<dip bits="16,19"  name="Coin #1" ids="1 coin /1 play ,1 coin /2 plays,1 coin /3 plays,1 coin /4 plays,1 coin /5 plays,1 coin /6 plays,1 coin /7 plays,2 coin /1 plays,2 coins/3 plays,2 coins/5 plays,3 coins/1 play ,3 coins/2 plays,3 coins/4 plays,4 coins/1 play ,4 coins/3 plays,Free play"/>
+		<dip bits="20,23"  name="Coin #2" ids="1 coin /1 play ,1 coin /2 plays,1 coin /3 plays,1 coin /4 plays,1 coin /5 plays,1 coin /6 plays,1 coin /7 plays,2 coins/1 play ,2 coins/3 plays,2 coins/5 plays,3 coins/1 play ,3 coins/2 plays,3 coins/4 plays,4 coins/1 play ,4 coins/3 plays,Invalid"/>
+	</switches>
+	<rom index="1">
+		<part>0</part>
+	</rom>
+	<rom index="0" zip="jailbrek.zip" md5="none" type="merged|nonmerged">
+		<!-- main cpu, size: 0x10000 -->
+		<part crc="a0b88dfd" name="507p03.11d"/>
+		<part crc="444b7d8e" name="507p02.9d"/>
+		<part crc="a0b88dfd" name="507p03.11d"/>
+		<part crc="444b7d8e" name="507p02.9d"/>
+
+		<!-- gfx2 (sprites), size 0x10000 -->
+		<part crc="0d269524" name="507j04.3e"/>
+		<part crc="27d4f6f4" name="507j05.4e"/>
+		<part crc="717485cb" name="507j06.5e"/>
+		<part crc="e933086f" name="507j07.3f"/>
+
+		<!-- gfx1 (background tiles), size: 0x8000 -->
+		<part crc="e3b7a226" name="507l08.4f"/>
+		<part crc="504f0912" name="507j09.5f"/>
+
+		<!-- proms -->
+		<part crc="0266c7db" name="507j12.6f"/>
+		<part crc="d4fe5c97" name="507j13.7f"/>
+		<part crc="f1909605" name="507j10.1f"/>
+		<part crc="f70bb122" name="507j11.2f"/>
+
+		<!-- vlm -->
+		<!-- part crc="507l01.8c" name="0c8a3605"/ -->
+	</rom>
+</misterromdescription>

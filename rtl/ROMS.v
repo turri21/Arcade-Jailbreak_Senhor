@@ -20,31 +20,33 @@ always @(posedge CL1) if (WE1) core[AD1] <= DI1;
 endmodule
 
 
-module MAIN_ROM
+module CPU_ROM
 (
-	input				CL,
-	input				MX,
-	input [15:0]	AD,
-	input	 [2:0]	BK,
-	output			DV,
-	output [7:0]	DT,
+	input         CL,
+	input  [15:0] AD,
+	input         MX,
 
-	input				DLCL,
-	input [17:0]	DLAD,
-	input	 [7:0]	DLDT,
-	input				DLEN
+	output        DV,
+	output  [7:0] OP,
+	output  [7:0] DT,
+
+	input         DLCL,
+	input  [17:0] DLAD,
+	input   [7:0] DLID,
+	input         DLEN
 );
 
-wire [14:0] AD1 = (AD[15:11] == 5'b11111) ? {1'b1,BK,AD[10:0]} : {1'b0,AD[13:0]};
+wire [7:0] OD,DC;
 
-wire  [7:0] DT0, DT1;
-DLROM #(15,8) r0(CL,AD[14:0],DT0, DLCL,DLAD,DLDT,DLEN & (DLAD[17:15]==3'b00_0));
-DLROM #(15,8) r1(CL,     AD1,DT1, DLCL,DLAD,DLDT,DLEN & (DLAD[17:15]==3'b00_1));
+assign DT = OD;
+assign DC = {AD[1],1'b0,~AD[1],1'b0,AD[3],1'b0,~AD[3],1'b0};
+assign OP = (OD^DC);
+assign DV = (AD[15]==1'b1) & MX;
 
-assign DV = ((AD[15:11] == 5'b11111)|(AD[15:14] != 2'b11)) & MX;
-assign DT = AD[15] ? DT1 : DT0;
+DLROM #(15,8) r(CL,AD[14:0],OD, DLCL,DLAD,DLID,DLEN & (DLAD[17:15]==2'b00_0));
 
 endmodule
+
 
 
 module SPCHIP_ROM
@@ -65,7 +67,7 @@ endmodule
 module BGCHIP_ROM
 (
 	input			 	CL,
-	input [13:0] 	AD,
+	input [14:0] 	AD,
 	output [7:0] 	DT,
 
 	input				DLCL,
@@ -73,7 +75,7 @@ module BGCHIP_ROM
 	input	 [7:0]	DLDT,
 	input				DLEN
 );
-DLROM #(14,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:14]==4'b10_00));
+DLROM #(15,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:15]==4'b10_0));
 endmodule
 
 
@@ -82,13 +84,13 @@ module SPCLUT_ROM
 	input				CL,
 	input  [7:0]	AD,
 	output [7:0]	DT,
-	
+
 	input				DLCL,
 	input [17:0]	DLAD,
 	input	 [7:0]	DLDT,
 	input				DLEN
 );
-DLROM #(8,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:8]==10'b10_0100_0000));
+DLROM #(8,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:8]==10'b10_1000_0000));
 endmodule
 
 
@@ -97,27 +99,28 @@ module BGCLUT_ROM
 	input				CL,
 	input  [7:0]	AD,
 	output [7:0]	DT,
-	
+
 	input				DLCL,
 	input [17:0]	DLAD,
 	input	 [7:0]	DLDT,
 	input				DLEN
 );
-DLROM #(8,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:8]==10'b10_0100_0001));
+DLROM #(8,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:8]==10'b10_1000_0001));
 endmodule
 
 
 module PALET_ROM
 (
 	input				CL,
-	input  [4:0]	AD,
+	input  [5:0]	AD,
 	output [7:0]	DT,
-	
+
 	input				DLCL,
 	input [17:0]	DLAD,
 	input	 [7:0]	DLDT,
-	input				DLEN
+	input				DLEN,
+	input  hi
 );
-DLROM #(5,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:5]==13'b10_0100_0010_000));
+DLROM #(5,8) r(CL,AD,DT, DLCL,DLAD,DLDT,DLEN & (DLAD[17:5]=={13'b10_1000_0010_00,hi}));
 endmodule
 
