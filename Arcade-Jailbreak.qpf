@@ -18,14 +18,14 @@
 # -------------------------------------------------------------------------- #
 #
 # Quartus Prime
-# Version 17.0.0 Build 595 04/25/2017 SJ Lite Edition
-# Date created = 15:54:33  June 10, 2021
+# Version 17.0.0 Build 595 04/25/2017 SJ Standard Edition
+# Date created = 18:38:38  May 13, 2021
 #
 # -------------------------------------------------------------------------- #
 
-QUARTUS_VERSION = "17.0"
-DATE = "15:54:33  June 10, 2021"
+QUARTUS_VERSION = "17.1"
+DATE = "18:38:38  May 13, 2021"
 
 # Revisions
 
-PROJECT_REVISION = "Arcade-JailBreak"
+PROJECT_REVISION = "Arcade-Jailbreak"
