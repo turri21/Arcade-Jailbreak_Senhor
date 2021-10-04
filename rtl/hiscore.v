@@ -36,11 +36,11 @@
  0011 - 2021-08-07 -	Optional auto-save on OSD open
  0012 - 2021-08-17 -	Add variable length change detection mask
  0013 - 2021-09-01 -	Output configured signal for autosave option menu masking
- 0014 - 2021-09-09 -	Fix turning on autosave w/o core reload
+ 0014 - 2021-09-09 -	Fix turning on autosave w/o core reload 
 ============================================================================
 */
 
-module hiscore
+module hiscore 
 #(
 	parameter HS_ADDRESSWIDTH=10,							// Max size of game RAM address for highscores
 	parameter HS_SCOREWIDTH=8,								// Max size of capture RAM For highscore data (default 8 = 256 bytes max)
@@ -79,7 +79,7 @@ module hiscore
 reg [31:0]	START_WAIT			=32'd0;		// Delay before beginning check process
 reg [15:0]	CHECK_WAIT 			=16'hFF;		// Delay between start/end check attempts
 reg [15:0]	CHECK_HOLD			=16'd2;		// Hold time for start/end check reads
-reg [15:0]	WRITE_HOLD			=16'd2;		// Hold time for game RAM writes
+reg [15:0]	WRITE_HOLD			=16'd2;		// Hold time for game RAM writes 
 reg [15:0]	WRITE_REPEATCOUNT	=16'b1;		// Number of times to write score to game RAM
 reg [15:0]	WRITE_REPEATWAIT	=16'b1111;	// Delay between subsequent write attempts to game RAM
 reg [7:0]	ACCESS_PAUSEPAD	=8'd4;		// Cycles to wait with paused CPU before and after RAM access
@@ -125,7 +125,7 @@ Hiscore config data structure (version 1)
 [8 byte * no. of entries]
 
 - Header format
-00 00 FF FF 00 FF 00 02 00 02 00 01 11 11 00 00
+00 00 FF FF 00 FF 00 02 00 02 00 01 11 11 00 00 
 [    SW   ] [ CW] [ CH] [ WH] [WRC] [WRW] [PAD]
 4 byte		START_WAIT
 2 byte		CHECK_WAIT
@@ -142,7 +142,7 @@ Hiscore config data structure (version 1)
 [   ADDR  ] LEN START END PAD
 
 4 bytes		Address of ram entry (in core memory map)
-1 byte		Length of ram entry in bytes
+1 byte		Length of ram entry in bytes 
 1 byte		Start value to check for at start of address range before proceeding
 1 byte		End value to check for at end of address range before proceeding
 1 byte		(padding)
@@ -153,7 +153,7 @@ Hiscore config data structure (version 1)
 [   ADDR  ] [LEN ] START END
 
 4 bytes		Address of ram entry (in core memory map)
-2 bytes		Length of ram entry in bytes
+2 bytes		Length of ram entry in bytes 
 1 byte		Start value to check for at start of address range before proceeding
 1 byte		End value to check for at end of address range before proceeding
 
@@ -165,7 +165,7 @@ localparam HS_HEADERLENGTH		=16;			// Size of header chunk (default=16 bytes)
 
 // HS_DUMPFORMAT = 1 --> No header, just the extracted hiscore data
 
-// Hiscore config tracking
+// Hiscore config tracking 
 wire				downloading_config;				// Is hiscore configuration currently being loaded from HPS?
 reg				downloaded_config = 1'b0;			// Has hiscore configuration been loaded successfully
 wire				parsing_header;					// Is hiscore configuration header currently being parsed?
@@ -244,7 +244,7 @@ wire [CFG_ADDRESSWIDTH-1:0] config_upload_addr = ioctl_addr[CFG_ADDRESSWIDTH+2:3
 
 wire address_we = downloading_config & parsing_config & (ioctl_addr[2:0] == 3'd3);
 wire length_we = downloading_config & parsing_config & (ioctl_addr[2:0] == 3'd3 + CFG_LENGTHWIDTH);
-wire startdata_we = downloading_config & parsing_config & (ioctl_addr[2:0] == 3'd4 + CFG_LENGTHWIDTH);
+wire startdata_we = downloading_config & parsing_config & (ioctl_addr[2:0] == 3'd4 + CFG_LENGTHWIDTH); 
 wire enddata_we = downloading_config & parsing_config & (ioctl_addr[2:0] == 3'd5 + CFG_LENGTHWIDTH);
 
 // RAM chunks used to store configuration data
@@ -273,7 +273,7 @@ dpram_hs #(.aWidth(CFG_ADDRESSWIDTH),.dWidth(8))
 startdata_table(
 	.clk(clk),
 	.addr_a(config_upload_addr),
-	.we_a(startdata_we & ioctl_wr),
+	.we_a(startdata_we & ioctl_wr), 
 	.d_a(data_from_hps),
 	.addr_b(counter),
 	.q_b(start_val)
@@ -289,7 +289,7 @@ enddata_table(
 	.q_b(end_val)
 );
 
-// RAM chunk used to store valid hiscore data
+// RAM chunk used to store valid hiscore data 
 dpram_hs #(.aWidth(HS_SCOREWIDTH),.dWidth(8))
 hiscore_data (
 	.clk(clk),
@@ -297,7 +297,7 @@ hiscore_data (
 	.we_a(downloading_dump),
 	.d_a(data_from_hps),
 	.addr_b(data_addr),
-	.we_b(dump_write),
+	.we_b(dump_write), 
 	.d_b(hiscore_buffer_out),
 	.q_b(hiscore_data_out)
 );
@@ -373,7 +373,7 @@ begin
 	// If we have a valid configuration then enable the hiscore system
 	if(downloaded_config)
 	begin
-
+	
 		// Check for end of core reset to initialise state machine for restore
 		reset_last <= reset;
 		if (downloaded_dump == 1'b1 && reset_last == 1'b1 && reset == 1'b0)
@@ -409,7 +409,7 @@ begin
 			begin
 				case (state)
 					// Compare process states
-					SM_COMPAREINIT: // Initialise state machine for comparison
+					SM_COMPAREINIT: // Initialise state machine for comparison 
 						begin
 							// Setup addresses and comparison flags
 							buffer_addr <= 0;
@@ -555,7 +555,7 @@ begin
 						end
 				endcase
 			end
-
+			
 			// If we are not uploading or resetting and valid hiscore data is available then start the state machine to write data to game RAM
 			if (uploading_dump == 1'b0 && downloaded_dump == 1'b1 && reset == 1'b0)
 			begin
@@ -660,7 +660,7 @@ begin
 							end
 						end
 
-					SM_CHECKCANCEL: // Cancel start/end check run - disable RAM access and keep CPU paused
+					SM_CHECKCANCEL: // Cancel start/end check run - disable RAM access and keep CPU paused 
 						begin
 							pause_cpu <= 1'b0;
 							next_state <= SM_INIT_RESTORE;
@@ -700,8 +700,8 @@ begin
 							if (ram_addr == end_addr)
 							begin
 								// End of entry reached
-								if (counter == total_entries)
-								begin
+								if (counter == total_entries) 
+								begin 
 									state <= SM_WRITECOMPLETE;
 								end
 								else
@@ -712,8 +712,8 @@ begin
 									base_io_addr <= data_addr + 1'b1;
 									state <= SM_WRITEBEGIN;
 								end
-							end
-							else
+							end 
+							else 
 							begin
 								state <= SM_WRITEREADY;
 							end
@@ -754,7 +754,7 @@ begin
 						end
 				endcase
 			end
-
+			
 			if(state == SM_TIMER) // timer wait state
 			begin
 				// Do not progress timer if CPU is paused by source other than this module
@@ -794,7 +794,7 @@ module dpram_hs #(
 reg [dWidth-1:0] ram [2**aWidth-1:0];
 
 always @(posedge clk) begin
-	if (we_a) begin
+	if (we_a) begin 
 		ram[addr_a] <= d_a;
 		q_a <= d_a;
 	end
@@ -803,7 +803,7 @@ always @(posedge clk) begin
 		q_a <= ram[addr_a];
 	end
 
-	if (we_b) begin
+	if (we_b) begin 
 		ram[addr_b] <= d_b;
 		q_b <= d_b;
 	end

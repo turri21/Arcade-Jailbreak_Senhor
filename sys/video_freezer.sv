@@ -64,7 +64,7 @@ always @(posedge clk) begin
 	reg vs_sync;
 
 	old_vs <= vs_out;
-
+	
 	if(~old_vs & vs_out) vs_sync <= 1;
 	if(sync_pt & vs_sync) begin
 		vs_sync <= 0;
@@ -72,7 +72,7 @@ always @(posedge clk) begin
 	end
 end
 
-assign sync = sync_o;
+assign sync = sync_o; 
 
 endmodule
 
@@ -112,7 +112,7 @@ always @(posedge clk) begin
 	end
 
 	if(old_sync & ~sync_in & sync_valid) s_len <= cnti;
-
+	
 	old_de <= de_in;
 	if(~old_de & de_in & sync_valid) de_start <= cnti;
 	if(old_de & ~de_in & sync_valid) de_end   <= cnti;

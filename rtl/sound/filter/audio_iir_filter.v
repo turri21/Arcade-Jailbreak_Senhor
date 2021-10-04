@@ -32,21 +32,21 @@ module iir_1st_order
 	input reset,
 	input [COUNT_BITS - 1 : 0] div,
 	input signed [COEFF_WIDTH - 1 : 0] A2, B1, B2,
-	input signed [DATA_WIDTH - 1 :0] in,
-	output [DATA_WIDTH - 1:0] out
+   input signed [DATA_WIDTH - 1 :0] in,
+   output [DATA_WIDTH - 1:0] out
 );
 
 	reg signed [DATA_WIDTH-1:0] x0,x1,y0;
 	reg signed [DATA_WIDTH + COEFF_WIDTH - 1 : 0] out32;
 	reg [COUNT_BITS - 1:0] count;
-
+ 
  // Usage:
  // Design your 1st order iir low/high-pass with a tool that will give you the
  // filter coefficients for the difference equation.  Filter coefficients can
  // be generated in Octave/matlab/scipy using a command similar to
  // [B, A] = butter( 1, 3500/(106528/2), 'low') for a 3500 hz 1st order low-pass
  // assuming 106528Hz sample rate.
- //
+ // 
  // The Matlab output is:
  // B = [0.093863   0.093863]
  // A = [1.00000  -0.81227]
@@ -65,13 +65,13 @@ module iir_1st_order
  //
  // COEFF_WIDTH must be at least COEFF_SCALE+1 and must be large enough to
  // handle temporary overflow during this computation: out32 <= (B1*x0 + B2*x1) - A2*y0
-
+ 
 	assign out = y0;
-
+ 
 	always @ (*) begin
 		out32 <= (B1*x0 + B2*x1) - A2*y0; //Previous output is y0 not y1
 	end
-
+	
 	always @ (posedge clk) begin
 		if(reset) begin
 			count <= 0;
@@ -89,7 +89,7 @@ module iir_1st_order
 			end
 		end
 	end
-
+	
 endmodule //iir_1st_order
 
 module iir_2nd_order
@@ -104,23 +104,23 @@ module iir_2nd_order
 	input reset,
 	input [COUNT_BITS - 1 : 0] div,
 	input signed [COEFF_WIDTH - 1 : 0] A2, A3, B1, B2, B3,
-	input signed [DATA_WIDTH - 1 : 0] in,
-	output [DATA_WIDTH - 1 : 0] out
+   input signed [DATA_WIDTH - 1 : 0] in,
+   output [DATA_WIDTH - 1 : 0] out
 );
 
 	reg signed [DATA_WIDTH-1 : 0] x0,x1,x2;
 	reg signed [DATA_WIDTH-1 : 0] y0,y1;
 	reg signed [(DATA_WIDTH + COEFF_WIDTH - 1) : 0] out32;
 	reg [COUNT_BITS : 0] count;
-
-
+ 
+ 
  // Usage:
  // Design your 1st order iir low/high-pass with a tool that will give you the
  // filter coefficients for the difference equation.  Filter coefficients can
  // be generated in Octave/matlab/scipy using a command similar to
  // [B, A] = butter( 2, 5000/(48000/2), 'low') for a 5000 hz 2nd order low-pass
  // assuming 48000Hz sample rate.
- //
+ // 
  // Output is:
  // B = [ 0.072231   0.144462   0.072231]
  // A = [1.00000  -1.10923   0.39815]
@@ -136,18 +136,18 @@ module iir_2nd_order
  // This leaves you with A2 = -18174 , A3 = 6523, B1 = 1183 , B2 = 2367 , B3 = 1183
  // B1 + B2 + B3 - A2 - A3 should sum to 2^COEFF_SCALE = 16384
  //
- // Sample frequency is "clk rate/div"
+ // Sample frequency is "clk rate/div" 
  //
  // COEFF_WIDTH must be at least COEFF_SCALE+1 and must be large enough to
- // handle temporary overflow during this computation:
+ // handle temporary overflow during this computation: 
  // out32 <= (B1*x0 + B2*x1 + B3*x2) - (A2*y0 + A3*y1);
-
+ 
 	assign out = y0;
-
+ 
 	always @ (*) begin
 		out32 <= (B1*x0 + B2*x1 + B3*x2) - (A2*y0 + A3*y1); //Previous output is y0 not y1
 	end
-
+	
 	always @ (posedge clk) begin
 		if(reset) begin
 			count <=  0;
@@ -155,7 +155,7 @@ module iir_2nd_order
 			x1 <= 0;
 			x2 <= 0;
 			y0 <= 0;
-			y1 <= 0;
+			y1 <= 0; 
 		end
 		else begin
 			count <= count + 1'd1;
@@ -169,5 +169,5 @@ module iir_2nd_order
 			end
 		end
 	end
-
+	
 endmodule //iir_2nd_order

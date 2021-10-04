@@ -2,7 +2,7 @@
 // result = num/div
 module sys_udiv
 #(
-	parameter NB_NUM,
+	parameter NB_NUM, 
 	parameter NB_DIV
 )
 (
@@ -45,7 +45,7 @@ endmodule
 // result = mul1*mul2
 module sys_umul
 #(
-	parameter NB_MUL1,
+	parameter NB_MUL1, 
 	parameter NB_MUL2
 )
 (
@@ -84,7 +84,7 @@ endmodule
 // result = (mul1*mul2)/div
 module sys_umuldiv
 #(
-	parameter NB_MUL1,
+	parameter NB_MUL1, 
 	parameter NB_MUL2,
 	parameter NB_DIV
 )

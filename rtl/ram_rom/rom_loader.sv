@@ -1,5 +1,5 @@
 //============================================================================
-//
+// 
 //  SD card ROM loader and ROM selector for MISTer.
 //  Copyright (C) 2019, 2020 Kitrinx (aka Rysha)
 //
@@ -7,7 +7,7 @@
 //  copy of this software and associated documentation files (the "Software"),
 //  to deal in the Software without restriction, including without limitation
 //  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-//  and/or sell copies of the Software, and to permit persons to whom the
+//  and/or sell copies of the Software, and to permit persons to whom the 
 //  Software is furnished to do so, subject to the following conditions:
 //
 //  The above copyright notice and this permission notice shall be included in
@@ -23,7 +23,7 @@
 //
 //============================================================================
 
-// Rom layout for Green Beret:
+// Rom layout for Jailbreak:
 // 0x0000 - 0x3FFF = eprom_1
 // 0x4000 - 0x7FFF = eprom_2
 // 0x8000 - 0xBFFF = eprom_3

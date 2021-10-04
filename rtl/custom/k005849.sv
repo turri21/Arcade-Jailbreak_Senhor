@@ -1,5 +1,5 @@
 //============================================================================
-//
+// 
 //  SystemVerilog implementation of the Konami 005849 custom tilemap
 //  generator
 //  Adapted from Green Beret core Copyright (C) 2013, 2019 MiSTer-X
@@ -9,7 +9,7 @@
 //  copy of this software and associated documentation files (the "Software"),
 //  to deal in the Software without restriction, including without limitation
 //  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-//  and/or sell copies of the Software, and to permit persons to whom the
+//  and/or sell copies of the Software, and to permit persons to whom the 
 //  Software is furnished to do so, subject to the following conditions:
 //
 //  The above copyright notice and this permission notice shall be included in
@@ -60,13 +60,16 @@ module k005849
 	output        NMI,      //Non-maskable IRQ
 	output        IOCS,     //I/O decoder enable (active low)
 	output        CS80,     //Chip select output for Konami 501 custom chip (active low)
-
+	
 	//Split sprite/tile busses
-	output [14:0] R,        //Address output to graphics ROMs (tiles)
+	output [15:0] R,        //Address output to graphics ROMs (tiles)
 	output [15:0] S,        //Address output to graphics ROMs (sprites)
 	input   [7:0] RD,       //Tilemap ROM data
 	input   [7:0] SD,       //Sprite ROM data
-
+	
+	//Extra input for flipping the sprite bank bit (active low)
+	input         SPFL,
+	
 	//Extra inputs for screen centering (alters HSync and VSync timing to reposition the video output)
 	input   [3:0] HCTR, VCTR,
 
@@ -149,6 +152,7 @@ reg hblank = 0;
 reg vblank = 0;
 reg vblank_irq_en = 0;
 reg frame_odd_even = 0;
+reg hmask = 0;
 always_ff @(posedge CK49) begin
 	if(cen_6m) begin
 		case(h_cnt)
@@ -156,11 +160,22 @@ always_ff @(posedge CK49) begin
 				vblank_irq_en <= 0;
 				h_cnt <= h_cnt + 9'd1;
 			end
-			8: begin
+			1: begin
 				hblank <= 0;
 				h_cnt <= h_cnt + 9'd1;
 			end
-			248: begin
+			9: begin
+				hmask <= 0;
+				h_cnt <= h_cnt + 9'd1;
+			end
+			//Blank the left-most and right-most 8 lines when the 005849's horizontal mask register bit
+			//(register 3 bit 7) is active
+			249: begin
+				if(hmask_en)
+					hmask <= 1;
+				h_cnt <= h_cnt + 9'd1;
+			end
+			257: begin
 				hblank <= 1;
 				h_cnt <= h_cnt + 9'd1;
 			end
@@ -193,7 +208,7 @@ assign HBLK = hblank;
 assign VBLK = vblank;
 
 //Generate horizontal sync and vertical sync (both active low)
-assign HSYC = HCTR[3] ? ~(h_cnt >= 284 - ~HCTR[2:0] && h_cnt <= 315 - ~HCTR[2:0]) : ~(h_cnt >= 292 + HCTR[2:0] && h_cnt <= 323 + HCTR[2:0]);
+assign HSYC = HCTR[3] ? ~(h_cnt >= 285 - ~HCTR[2:0] && h_cnt <= 316 - ~HCTR[2:0]) : ~(h_cnt >= 293 + HCTR[2:0] && h_cnt <= 324 + HCTR[2:0]);
 assign VSYC = ~(v_cnt >= 254 - VCTR && v_cnt <= 261 - VCTR);
 assign SYNC = HSYC ^ VSYC;
 
@@ -213,7 +228,7 @@ always_ff @(posedge CK49 or negedge RES) begin
 end
 assign IRQ = vblank_irq;
 
-//NMI (triggers every 32 scanlines starting from scanline 48)
+//NMI (triggers every 32 scanlines)
 reg nmi = 1;
 always_ff @(posedge CK49 or negedge RES) begin
 	if(!RES)
@@ -221,7 +236,7 @@ always_ff @(posedge CK49 or negedge RES) begin
 	else if(cen_3m) begin
 		if(!nmi_mask)
 			nmi <= 1;
-		else if((v_cnt[7:0] + 9'd16) % 9'd32 == 0)
+		else if(v_cnt % 9'd32 == 31)
 			nmi <= 0;
 	end
 end
@@ -235,7 +250,7 @@ always_ff @(posedge CK49 or negedge RES) begin
 	else if(cen_3m) begin
 		if(!firq_mask)
 			firq <= 1;
-		else if(!frame_odd_even && v_cnt == 9'd239)
+		else if(!frame_odd_even && v_cnt == 9'd240)
 			firq <= 0;
 	end
 end
@@ -243,7 +258,7 @@ assign FIRQ = firq;
 
 //----------------------------------------------------- Internal registers -----------------------------------------------------//
 
-//The 005849 has five 8-bit registers whose purposes are mostly unknown
+//The 005849 has five 8-bit registers - handle these here
 wire cs_regs = ~XCS & (A[13:12] == 2'b10) & (A[7:3] == 5'b01000);
 reg [7:0] reg0, reg1, reg2, reg3, reg4;
 //Write to the appropriate register
@@ -261,14 +276,26 @@ always_ff @(posedge CK49) begin
 		end
 	end
 end
+
+//Assign ZRAM scroll direction as bit 2 of register 2
+wire zram_scroll_dir = reg2[2];
+
+//Assign tilemap bank as bit 0 of register 3
+wire tilemap_bank = reg3[0];
+
+//Assign tile priority override as bit 6 of register 3 (this is used by Jailbreak to give full priority to sprites and override
+//the layer priority set by bit 7 of the tilemap attribute)
+wire tile_priority_override = reg3[6];
+
+//Assign horizontal mask enable as bit 7 of register 3 (this bit, when enabled, masks the left-most and right-most 8 columns to
+//reduce the active area from 256x224 to 240x224
+wire hmask_en = reg3[7];
+
 //Assign IRQ masks and flipscreen from the lower 4 bits of register 4
 wire nmi_mask = reg4[0];
 wire irq_mask = reg4[1];
 wire firq_mask = reg4[2];
 wire flipscreen = reg4[3];
-
-//Assign ZRAM scroll direction as bit 2 of register 2
-wire zram_scroll_dir = reg2[2];
 
 wire [7:0] regs = (A == 14'h2040) ? reg0:
                   (A == 14'h2041) ? reg1:
@@ -292,7 +319,7 @@ dpram_dc #(.widthad_a(5)) ZRAM0
 	.data_a(DBi),
 	.q_a(zram0_Dout),
 	.wren_a(zram0_cs & READ),
-
+	
 	.clock_b(CK49),
 	.address_b(zram_A),
 	.q_b(zram0_D)
@@ -304,7 +331,7 @@ dpram_dc #(.widthad_a(5)) ZRAM1
 	.data_a(DBi),
 	.q_a(zram1_Dout),
 	.wren_a(zram1_cs & READ),
-
+	
 	.clock_b(CK49),
 	.address_b(zram_A),
 	.q_b(zram1_D)
@@ -327,7 +354,7 @@ dpram_dc #(.widthad_a(11)) VRAM_TILEATTRIB
 	.data_a(DBi),
 	.q_a(tileram_attrib_Dout),
 	.wren_a(tileram_attrib_cs & READ),
-
+	
 	.clock_b(CK49),
 	.address_b(vram_A),
 	.q_b(tileram_attrib_D)
@@ -339,13 +366,13 @@ dpram_dc #(.widthad_a(11)) VRAM_TILECODE
 	.data_a(DBi),
 	.q_a(tileram_code_Dout),
 	.wren_a(tileram_code_cs & READ),
-
+	
 	.clock_b(CK49),
 	.address_b(vram_A),
 	.q_b(tileram_code_D)
 );
 
-`ifndef MISTER_JAILBREAK
+`ifndef MISTER_HISCORE
 //Sprites
 dpram_dc #(.widthad_a(12)) VRAM_SPR
 (
@@ -353,8 +380,8 @@ dpram_dc #(.widthad_a(12)) VRAM_SPR
 	.address_a(A[11:0]),
 	.data_a(DBi),
 	.q_a(spriteram_Dout),
-	.wren_a(spriteram_cs & NRD),
-
+	.wren_a(spriteram_cs & READ),
+	
 	.clock_b(~CK49),
 	.address_b(spriteram_A),
 	.q_b(spriteram_D)
@@ -373,7 +400,7 @@ dpram_dc #(.widthad_a(12)) VRAM_SPR
 	.data_a(VRAM_SPR_DIN),
 	.q_a(spriteram_Dout),
 	.wren_a(VRAM_SPR_WE),
-
+	
 	.clock_b(~CK49),
 	.address_b(spriteram_A),
 	.q_b(spriteram_D)
@@ -385,7 +412,7 @@ dpram_dc #(.widthad_a(12)) VRAM_SPR_SHADOW
 	.address_a(VRAM_SPR_AD),
 	.data_a(VRAM_SPR_DIN),
 	.wren_a(VRAM_SPR_WE),
-
+	
 	.clock_b(CK49),
 	.address_b(hs_address),
 	.q_b(hs_data_out)
@@ -400,16 +427,17 @@ dpram_dc #(.widthad_a(12)) VRAM_SPR_SHADOW
 wire [8:0] hcnt_x = h_cnt ^ {9{flipscreen}};
 wire [8:0] vcnt_x = v_cnt ^ {9{flipscreen}};
 
-//Generate tilemap position - horizontal position is the sum of the horizontal counter and 9 bits of ZRAM, vertical position is
-//the vertical counter
-wire [8:0] tilemap_hpos = {h_cnt[8], hcnt_x[7:0]} + {zram1_D[0], zram0_D};
-wire [8:0] tilemap_vpos = vcnt_x;
+//Generate tilemap position - horizontal position is the sum of the horizontal counter, vertical position is the vertical counter
+//
+wire [8:0] tilemap_hpos = {h_cnt[8], hcnt_x[7:0]} + (~zram_scroll_dir ? {zram1_D[0], zram0_D} : 9'd0);
+wire [8:0] tilemap_vpos = vcnt_x + (zram_scroll_dir ? {zram1_D[0], zram0_D} : 9'd0);
 
 //Address output to tile section of VRAM
 wire [10:0] vram_A = {tilemap_vpos[7:3], tilemap_hpos[8:3]};
 
-//Tile index is a combination of attribute bits [7:6] and the actual tile code
-wire [9:0] tile_index = {tileram_attrib_D[7:6], tileram_code_D};
+//Tile index is a combination of the tilemap bank bit from the 005849's internal registers, attribute bits [7:6] and the actual
+//tile code
+wire [10:0] tile_index = {tilemap_bank, tileram_attrib_D[7:6], tileram_code_D};
 
 //Tile color is held in the lower 4 bits of tileram attributes
 wire [3:0] tile_color = tileram_attrib_D[3:0];
@@ -424,12 +452,11 @@ assign R = {tile_index, (tilemap_vpos[2:0] ^ {3{tile_vflip}}), (tilemap_hpos[2:1
 //Multiplex tilemap ROM data down from 8 bits to 4 using bit 0 of the horizontal position
 wire [3:0] tile_pixel = (tilemap_hpos[0] ^ tile_hflip) ? RD[3:0] : RD[7:4];
 
-//Retrieve tilemap select bit from the inverse of bit 1 of unidentified register 3
-wire tile_sel = reg3[0];
+//Retrieve tilemap select bit from the NOR of bit 7 of the tile attributes with the priority override bit
 reg tilemap_en = 0;
 always_ff @(posedge CK49) begin
 	if(n_cen_6m) begin
-		tilemap_en <= tile_sel;
+		tilemap_en <= ~(tileram_attrib_D[7] | tile_priority_override);
 	end
 end
 
@@ -437,14 +464,21 @@ end
 assign VCF = tile_color;
 assign VCB = tile_pixel;
 
+//Delay tilemap data by one horizontal line
+reg [3:0] tilemap_D = 4'd0;
+always_ff @(posedge CK49) begin
+	if(cen_6m)
+		tilemap_D <= VCD;
+end
+
 //-------------------------------------------------------- Sprite layer --------------------------------------------------------//
 
 //The following code is the original sprite renderer from MiSTerX's Green Beret core with additional screen flipping support and
 //some extra tweaks
 
-//Generate sprite position - horizontal position is the horizontal counter (offset by 1), vertical position is the vertical counter
-//(offset by 17 to properly position the sprite layer)
-wire [8:0] sprite_hpos = h_cnt + 9'd1;
+//Generate sprite position - horizontal position is the horizontal counter, vertical position is the vertical counter (offset by
+//18, 17 when flipped, to properly position the sprite layer)
+wire [8:0] sprite_hpos = h_cnt;
 wire [8:0] sprite_vpos = flipscreen ? v_cnt + 9'd17 : v_cnt + 9'd18;
 
 //Sprite state machine
@@ -453,13 +487,13 @@ reg [1:0] sprite_offset;
 reg [7:0] sprite_attrib0, sprite_attrib1, sprite_attrib2, sprite_attrib3;
 reg [2:0] sprite_fsm_state;
 always_ff @(posedge CK49) begin
-	if(sprite_hpos == 9'd1) begin
+	if(sprite_hpos == 9'd0) begin
 		xcnt <= 0;
 		sprite_index <= 0;
 		sprite_offset <= 3;
 		sprite_fsm_state <= 1;
 	end
-	else
+	else 
 		case(sprite_fsm_state)
 			0: /* empty */ ;
 			1: begin
@@ -532,7 +566,9 @@ assign S = {sprite_code, ly[3], lx[3], ly[2:0], lx[2:1]};
 //Multiplex sprite ROM data down from 8 bits to 4 using bit 0 of the horizontal position
 wire [3:0] sprite_pixel = lx[0] ? SD[3:0] : SD[7:4];
 
-//Latch the sprite bank from bit 3 of register 3 on the rising edge of VSync
+//Latch the sprite bank from bit 3 of register 3 on the rising edge of VSync and XNOR with the added SPFL signal to flip this bit
+//for Green Beret
+//TODO: Find the actual internal register bit (if any) on the 005849 to properly handle this
 reg sprite_bank = 0;
 reg old_vsync;
 always_ff @(posedge CK49) begin
@@ -540,7 +576,7 @@ always_ff @(posedge CK49) begin
 	if(!VSYC)
 		sprite_bank <= 0;
 	else if(!old_vsync && VSYC)
-		sprite_bank <= reg3[3];
+		sprite_bank <= ~(reg3[3] ^ SPFL);
 end
 
 wire [11:0] spriteram_A = {3'b000, sprite_bank, sprite_index, sprite_offset};
@@ -580,7 +616,6 @@ end
 //Generate read address for sprite line buffer on the rising edge of the pixel clock
 reg [9:0] radr0 = 10'd0;
 reg [9:0] radr1 = 10'd1;
-wire [3:0] sprite_D;
 always_ff @(posedge CK49) begin
 	if(cen_6m)
 		radr0 <= {sprite_id, flipscreen ? sprite_hpos - 9'd241 : sprite_hpos};
@@ -594,7 +629,7 @@ dpram_dc #(.widthad_a(10)) LBUFF
 	.address_a(lbuff_A),
 	.data_a({4'd0, lbuff_Din}),
 	.wren_a(lbuff_we & (lbuff_Din != 0)),
-
+	
 	.clock_b(CK49),
 	.address_b(radr0),
 	.data_b(8'h0),
@@ -604,6 +639,7 @@ dpram_dc #(.widthad_a(10)) LBUFF
 
 //Latch sprite data from the sprite line buffer
 wire lbuff_read_en = (div[2:0] == 3'b100);
+reg [3:0] sprite_D = 4'd0;
 always_ff @(posedge CK49) begin
 	if(lbuff_read_en) begin
 		if(radr0 != radr1)
@@ -616,7 +652,7 @@ end
 
 //Multiplex tile and sprite data, then output the final result
 wire tile_sprite_sel = (tilemap_en | ~(|sprite_D));
-wire [3:0] tile_sprite_D = tile_sprite_sel ? VCD : sprite_D;
+wire [3:0] tile_sprite_D = tile_sprite_sel ? tilemap_D : sprite_D;
 
 //Latch and output pixel data
 reg [4:0] pixel_D;
@@ -624,6 +660,8 @@ always_ff @(posedge CK49) begin
 	if(cen_6m)
 		pixel_D <= {tile_sprite_sel, tile_sprite_D};
 end
-assign COL = pixel_D;
+//If the horizontal mask is active, black out the left-most and right-most 8 columns to limit the display area to 240x224, otherwise
+//output the full 256x224
+assign COL = hmask ? 5'd0 : pixel_D;
 
 endmodule

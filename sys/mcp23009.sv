@@ -94,7 +94,7 @@ always@(posedge clk) begin
 	end
 end
 
-wire [15:0] init_data[12] =
+wire [15:0] init_data[12] = 
 '{
 	16'h00F8,
 	16'h0138,

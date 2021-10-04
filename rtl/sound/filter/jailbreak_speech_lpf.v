@@ -26,26 +26,26 @@ module jailbreak_speech_lpf(
 	input reset,
 	input signed [15:0] in,
 	output signed [15:0] out);
-
+	
 	reg [9:0] div = 256; //Sample at 49.152/256 = 192000Hz
-
+	
 	//Coefficients computed with Octave/Matlab/Online filter calculators.
 	//or with scipy.signal.bessel or similar tools
-
+	
 	//0.010747920, 0.010747920
 	//1.0000000, -0.97850416
 	reg signed [17:0] A2;
 	reg signed [17:0] B2;
 	reg signed [17:0] B1;
-
+	
 	wire signed [15:0] audio_post_lpf1;
-
+		
 	always @ (*) begin
 		A2 = -18'd32064;
 		B1 = 18'd352;
 		B2 = 18'd352;
 	end
-
+	
 	iir_1st_order lpf6db(.clk(clk),
 								.reset(reset),
 								.div(div),
@@ -53,8 +53,8 @@ module jailbreak_speech_lpf(
 								.B1(B1),
 								.B2(B2),
 								.in(in),
-								.out(audio_post_lpf1));
-
+								.out(audio_post_lpf1)); 
+	 
 	assign out = audio_post_lpf1;
 
 endmodule

@@ -13,7 +13,7 @@
 // LINE_LENGTH: Length of display line in pixels when HBlank = 0;
 // HALF_DEPTH:  If =1 then color dept is 4 bits per component
 //
-// altera message_off 10720
+// altera message_off 10720 
 // altera message_off 12161
 
 module video_mixer
@@ -45,7 +45,7 @@ module video_mixer
 	input            VBlank,
 
 	// Freeze engine
-	// HDMI: displays last frame
+	// HDMI: displays last frame 
 	// VGA:  black screen with HSync and VSync
 	input            HDMI_FREEZE,
 	output           freeze_sync,
@@ -83,7 +83,7 @@ video_freezer freezer
 reg frz;
 always @(posedge CLK_VIDEO) begin
 	reg frz1;
-
+	
 	frz1 <= HDMI_FREEZE;
 	frz  <= frz1;
 end
@@ -175,7 +175,7 @@ always @(posedge CLK_VIDEO) begin
 	reg old_hde;
 	reg old_ce;
 	reg ce_osc, fs_osc;
-
+	
 	old_ce <= ce_pix;
 	ce_osc <= ce_osc | (old_ce ^ ce_pix);
 

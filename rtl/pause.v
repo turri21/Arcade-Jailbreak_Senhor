@@ -24,7 +24,7 @@
   - Pause can be triggered by user input, hiscore module or OSD opening (optionally controlled by setting in OSD)
   - When paused the RGB outputs will be halved after 10 seconds to reduce burn-in (optionally controlled by setting in OSD)
   - Reset signal will cancel user triggered pause
-
+  
  Version history:
  0001 - 2021-03-15 -	First marked release
  0002 - 2021-08-28 -	Add optional output of dim_video signal (currently used by Galaga)
@@ -41,7 +41,7 @@ module pause #(
 	input								reset,					// CPU reset signal (active-high)
 	input								user_button,			// User pause button signal (active-high)
 	input								pause_request,			// Pause requested by other code (active-high)
-	input [1:0]						options,					// Pause options from OSD
+	input [1:0]						options,					// Pause options from OSD 
 																	//   [0] = pause in OSD (active-high)
 																	//   [1] = dim video (active-high)
 	input 							OSD_STATUS,				// OSD is open (active-high)

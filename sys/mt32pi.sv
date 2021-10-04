@@ -83,7 +83,7 @@ generate
 			end
 		end
 	end
-
+	
 	reg crossed;
 	always @(posedge CLK_AUDIO) crossed <= (clk_rate[0].cnt <= clk_rate[1].cnt);
 endgenerate
@@ -132,7 +132,7 @@ always @(posedge CLK_AUDIO) begin : i2s_proc
 		if (i2s_ws) mt32_i2s_l <= i2s_buf;
 		else        mt32_i2s_r <= i2s_buf;
 	end
-
+	
 	if (reset) begin
 		i2s_buf    <= 0;
 		mt32_i2s_l <= 0;
@@ -165,7 +165,7 @@ always @(posedge CLK_AUDIO) begin : i2c_slave
 	reg        disp, dispdata;
 	reg  [2:0] div;
 	reg        old_reset;
-
+	
 	old_reset <= reset;
 	if(old_reset & ~reset) sda_out <= 1;
 

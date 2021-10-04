@@ -134,7 +134,7 @@ always @(posedge clk) begin
 		data2 <= data3;
 		data3 <= data4;
 		data4 <= adc_data;
-
+		
 		sum <= data1+data2+data3+data4;
 
 		if(sum[13:2]<HIST_LOW)  dout <= 0;
@@ -148,7 +148,7 @@ reg [1:0] act;
 always @(posedge clk) begin
 	reg [31:0] onesec;
 	reg old_dout;
-
+	
 	onesec <= onesec + 1;
 	if(onesec>CLK_RATE) begin
 		onesec <= 0;

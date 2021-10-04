@@ -18,7 +18,7 @@ always @(posedge clk) begin
 
 	old_hs <= hs_in;
 	old_vs <= vs_in;
-
+	
 	if(old_hs && ~hs_in) begin
 		if(v2) begin
 			scanline <= scanline + 1'd1;
@@ -58,10 +58,10 @@ always @(posedge clk) begin
 	reg [23:0] dout1, dout2;
 	reg de1,de2,vs1,vs2,hs1,hs2;
 
-	dout   <= dout2; dout2 <= dout1; dout1 <= d;
-	vs_out <= vs2;   vs2   <= vs1;   vs1   <= vs_in;
-	hs_out <= hs2;   hs2   <= hs1;   hs1   <= hs_in;
-	de_out <= de2;   de2   <= de1;   de1   <= de_in;
+	dout   <= dout2; dout2 <= dout1; dout1 <= d;     
+	vs_out <= vs2;   vs2   <= vs1;   vs1   <= vs_in; 
+	hs_out <= hs2;   hs2   <= hs1;   hs1   <= hs_in; 
+	de_out <= de2;   de2   <= de1;   de1   <= de_in; 
 end
 
 endmodule

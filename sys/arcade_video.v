@@ -251,7 +251,7 @@ always @(posedge CLK_VIDEO) begin
 	if(CE_PIXEL) begin
 		old_vs <= VGA_VS;
 		old_de <= VGA_DE;
-
+		
 		hcnt <= hcnt + 1'd1;
 		if(~old_de & VGA_DE) begin
 			hcnt <= 1;

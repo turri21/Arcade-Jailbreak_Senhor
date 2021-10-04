@@ -1,4 +1,4 @@
-//
+// 
 // sd_card.v
 //
 // Copyright (c) 2014 Till Harbaum <till@harbaum.org>
@@ -326,7 +326,7 @@ always @(posedge clk_spi) begin
 				// first byte of valid command is 01xxxxxx
 				// don't accept new commands once a write or read command has been accepted
 				if(byte_cnt > 5 &&
-						((write_state == WR_STATE_IDLE && read_state == RD_STATE_IDLE && ibuf[7:6] == 1) ||
+						((write_state == WR_STATE_IDLE && read_state == RD_STATE_IDLE && ibuf[7:6] == 1) || 
 						(read_state != RD_STATE_IDLE && ibuf == 8'h4c))) begin
 					byte_cnt <= 0;
 					cmd      <= ibuf[5:0];
@@ -364,10 +364,10 @@ always @(posedge clk_spi) begin
 								read_state <= RD_STATE_START;
 							end
 
-						// CMD12: STOP_TRANSMISSION
+						// CMD12: STOP_TRANSMISSION 
 						12: reply[39:32] <= 0;
-
-						// CMD13: SEND_STATUS
+						
+						// CMD13: SEND_STATUS 
 						13: reply[39:24] <= 16'h0000;
 
 						// CMD16: SET_BLOCKLEN

@@ -12,11 +12,11 @@
 
     You should have received a copy of the GNU General Public License
     along with JT49.  If not, see <http://www.gnu.org/licenses/>.
-
+    
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 15-Jan-2019
-
+    
     */
 
 // DC removal filter
@@ -44,7 +44,7 @@ always @(*) begin
     exact = integ+error;
     q = exact[sw+dw:dw];
     pre_dout  = { 1'b0, din } - q;
-    //dout_ext = { pre_dout, {dw{1'b0}} };
+    //dout_ext = { pre_dout, {dw{1'b0}} };    
     //mult  = dout_ext;
 end
 

@@ -1,8 +1,8 @@
 //
 //
-// Video crop
+// Video crop 
 // Copyright (c) 2020 Grabulosaure, (c) 2021 Alexey Melnikov
-//
+// 
 // Integer scaling
 // Copyright (c) 2021 Alexey Melnikov
 //
@@ -61,7 +61,7 @@ always @(posedge CLK_VIDEO) begin
 			vcalc <= 1;
 			vcrop <= (CROP_SIZE >= vcpt) ? 12'd0 : CROP_SIZE;
 		end
-
+		
 		if (VGA_DE_IN) hcpt <= hcpt + 1'd1;
 		if (~VGA_DE_IN & old_de) begin
 			vcpt <= vcpt + 1'd1;
@@ -74,7 +74,7 @@ always @(posedge CLK_VIDEO) begin
 	ary <= ARY;
 
 	vsize <= vcrop ? vcrop : vtot;
-
+	
 	mul_start <= 0;
 
 	if(!vcrop || !ary || !arx) begin
@@ -213,7 +213,7 @@ always @(posedge CLK_VIDEO) begin
 						cnt    <= 8;
 					end
 				end
-
+				
 			3: begin
 					mul_arg1  <= mul_res[11:0];
 					mul_arg2  <= arx_i;

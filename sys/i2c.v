@@ -63,7 +63,7 @@ always @(posedge CLK) begin
 
 	old_clk <= I2C_CLOCK;
 	old_st  <= START;
-
+	
 	// delay to make sure SDA changed while SCL is stabilized at low
 	if(old_clk && ~I2C_CLOCK && ~SD_COUNTER[5]) SDO[0] <= SD[SD_COUNTER[4:0]];
 	SDO[3:1] <= SDO[2:0];
@@ -80,7 +80,7 @@ always @(posedge CLK) begin
 		SD_COUNTER <= 0;
 	end else begin
 		if(~old_clk && I2C_CLOCK && ~&SD_COUNTER) begin
-			SD_COUNTER <= SD_COUNTER + 6'd1;
+			SD_COUNTER <= SD_COUNTER + 6'd1;	
 			case(SD_COUNTER)
 			      01: SCLK <= 0;
 			      10: ACK  <= ACK | I2C_SDA;

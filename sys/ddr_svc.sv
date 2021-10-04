@@ -5,14 +5,14 @@
 // This source file is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// (at your option) any later version. 
 //
 // This source file is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License 
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // ------------------------------------------
@@ -41,7 +41,7 @@ module ddr_svc
 	output [63:0] ch0_data,
 	input         ch0_req,
 	output        ch0_ready,
-
+	
 	input  [31:3] ch1_addr,
 	input   [7:0] ch1_burst,
 	output [63:0] ch1_data,
@@ -69,7 +69,7 @@ reg        ch = 0;
 
 always @(posedge clk) begin
 	ready <= 0;
-
+	
 	if(!ram_waitrequest) begin
 		ram_read  <= 0;
 		ram_write <= 0;
@@ -92,7 +92,7 @@ always @(posedge clk) begin
 					ch 			<= 1;
 					ram_bcnt    <= 8'hFF;
 					state       <= 1;
-				end
+				end 
 			1: begin
 					if(ram_read_ready) begin
 						ram_bcnt  <= ram_bcnt + 1'd1;

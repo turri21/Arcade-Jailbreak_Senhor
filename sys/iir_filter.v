@@ -1,5 +1,5 @@
 
-//  3-tap IIR filter for 2 channels.
+//  3-tap IIR filter for 2 channels. 
 //  Copyright (C) 2020 Sorgelig
 //
 //  This program is free software; you can redistribute it and/or modify it

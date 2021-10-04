@@ -1,5 +1,5 @@
 //============================================================================
-//
+// 
 //  Port to MiSTer.
 //  Copyright (C) 2021 Sorgelig
 //
@@ -12,7 +12,7 @@
 //  copy of this software and associated documentation files (the "Software"),
 //  to deal in the Software without restriction, including without limitation
 //  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-//  and/or sell copies of the Software, and to permit persons to whom the
+//  and/or sell copies of the Software, and to permit persons to whom the 
 //  Software is furnished to do so, subject to the following conditions:
 //
 //  The above copyright notice and this permission notice shall be included in
@@ -208,10 +208,10 @@ assign BUTTONS = 0;
 
 wire [1:0] ar = status[14:13];
 
-assign VIDEO_ARX = (!ar) ? 12'd15 : (ar - 1'd1);
+assign VIDEO_ARX = (!ar) ? 12'd16 : (ar - 1'd1);
 assign VIDEO_ARY = (!ar) ? 12'd14 : 12'd0;
 
-`include "build_id.v"
+`include "build_id.v" 
 localparam CONF_STR = {
 	"A.JAILBREAK;;",
 	"ODE,Aspect Ratio,Original,Full screen,[ARC1],[ARC2];",
@@ -329,8 +329,8 @@ always @(posedge CLK_49M) begin
 			'h72: btn_down    <= pressed; // down
 			'h6B: btn_left    <= pressed; // left
 			'h74: btn_right   <= pressed; // right
-			'h14: btn_1       <= pressed; // ctrl
-			'h11: btn_2       <= pressed; // alt
+			'h14: btn_1       <= pressed; // ctrl						
+			'h11: btn_2       <= pressed; // alt						
 		endcase
 	end
 end
@@ -386,7 +386,7 @@ wire hs, vs;
 wire [3:0] r,g,b;
 wire ce_pix;
 
-arcade_video #(240,12) arcade_video
+arcade_video #(256,12) arcade_video
 (
 	.*,
 
@@ -405,32 +405,32 @@ arcade_video #(240,12) arcade_video
 Jailbreak Jailbreak_inst
 (
 	.reset(~reset),                                        // input reset
-
+	
 	.clk_49m(CLK_49M),                                     // input clk_49m
 
 	.coin({~m_coin2, ~m_coin1}),                           // input coin
 	.btn_service(~btn_service),                            // input btn_service
-
+	
 	.btn_start({~m_start2, ~m_start1}),                    // input [1:0] btn_start
-
+	
 	.p1_joystick({~m_down1, ~m_up1, ~m_right1, ~m_left1}),
 	.p2_joystick({~m_down2, ~m_up2, ~m_right2, ~m_left2}),
 	.p1_buttons({~m_b2_1, ~m_b1_1}),
 	.p2_buttons({~m_b2_2, ~m_b1_2}),
-
+	
 	.dipsw({~dip_sw[2], ~dip_sw[1], ~dip_sw[0]}),          // input [19:0] dipsw
-
+	
 	.sound(audio),                                         // output [15:0] sound
-
+	
 	.h_center(status[6:3]),                                // Screen centering
 	.v_center(status[10:7]),
-
+	
 	.video_hsync(hs),                                      // output video_hsync
 	.video_vsync(vs),                                      // output video_vsync
 	.video_vblank(vblank),                                 // output video_vblank
 	.video_hblank(hblank),                                 // output video_hblank
 	.ce_pix(ce_pix),                                       // output ce_pix
-
+	
 	.video_r(r),                                           // output [2:0] video_r
 	.video_g(g),                                           // output [2:0] video_g
 	.video_b(b),                                           // output [1:0] video_b
@@ -438,7 +438,7 @@ Jailbreak Jailbreak_inst
 	.ioctl_addr(ioctl_addr),
 	.ioctl_wr(ioctl_wr && !ioctl_index),
 	.ioctl_data(ioctl_dout),
-
+	
 	.pause(pause_cpu),
 
 	.hs_address(hs_address),

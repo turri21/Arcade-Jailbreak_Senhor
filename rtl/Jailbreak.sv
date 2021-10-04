@@ -1,5 +1,5 @@
 //============================================================================
-//
+// 
 //  Jailbreak PCB model
 //  Copyright (C) 2021 Ace
 //
@@ -7,7 +7,7 @@
 //  copy of this software and associated documentation files (the "Software"),
 //  to deal in the Software without restriction, including without limitation
 //  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-//  and/or sell copies of the Software, and to permit persons to whom the
+//  and/or sell copies of the Software, and to permit persons to whom the 
 //  Software is furnished to do so, subject to the following conditions:
 //
 //  The above copyright notice and this permission notice shall be included in
@@ -32,9 +32,9 @@ module Jailbreak
 	input          [1:0] btn_start, //1 = Player 2, 0 = Player 1
 	input          [3:0] p1_joystick, p2_joystick, //3 = up, 2 = down, 1 = right, 0 = left
 	input          [1:0] p1_buttons, p2_buttons,   //2 buttons per player
-
+	
 	input         [19:0] dipsw,
-
+	
 	//Screen centering (alters HSync and VSync timing of the Konami 005849 to reposition the video output)
 	input          [3:0] h_center, v_center,
 
@@ -253,7 +253,8 @@ k005849 u8E
 	.SD(spriterom_D),
 	.HCTR(h_center),
 	.VCTR(v_center),
-
+	.SPFL(1),
+	
 	.hs_address(hs_address),
 	.hs_data_out(hs_data_out),
 	.hs_data_in(hs_data_in),

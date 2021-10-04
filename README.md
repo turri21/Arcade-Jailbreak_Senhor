@@ -57,7 +57,6 @@ Quick reference for folders and file placement:
 ## Known Issues
 1) Accuracy of video timings cannot be guaranteed yet until they are measured on an original JAILBREAK PCB
 2) Audio filter accuracy cannot be guaranteed yet until the frequency response of an original JAILBREAK PCB is fully analyzed
-3) Sprite/tilemap priorities are not 100% accurate
 
 ## High Score Save/Load
 Save and load of high scores is supported for this core.
@@ -66,3 +65,4 @@ Save and load of high scores is supported for this core.
 - To enable automatic saving of high scores, turn on the 'Autosave Hiscores' option, press the 'Save Settings' option in the OSD, and reload the core.  High scores will then be automatically saved (if they have changed) any time the OSD is opened.
 
 High score data is stored in /media/fat/config/nvram/ as ```<mra filename>.nvm```
+
