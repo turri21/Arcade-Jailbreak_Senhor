@@ -35,6 +35,10 @@ module Jailbreak
 	
 	input         [19:0] dipsw,
 	
+	//This input serves to select a fractional divider to acheive 3.072MHz for the YM2203 depending on whether Scooter Shooter
+	//runs with original or underclocked timings to normalize sync frequencies
+	input                underclock,
+	
 	//Screen centering (alters HSync and VSync timing of the Konami 005849 to reposition the video output)
 	input          [3:0] h_center, v_center,
 
@@ -108,20 +112,32 @@ always_ff @(posedge clk_49m) begin
 	if(cen_6m) begin
 		clk_phase <= clk_phase + 1'd1;
 		case(clk_phase)
-			2'b00: k1_E <= 1;
-			2'b11: k1_Q <= 1;
+			2'b01: k1_Q <= 1;
+			2'b10: k1_E <= 1;
 		endcase
 	end
 end
 
 //Fractional divider to obtain 3.579545MHz clock for the VLM5030
+wire [9:0] vlm5030_cen_n = underclock ? 10'd62 : 10'd60;
+wire [9:0] vlm5030_cen_m = underclock ? 10'd843 : 10'd824;
 wire cen_3m58;
-jtframe_frac_cen #(2) vlm5030_cen
+jtframe_frac_cen vlm5030_cen
 (
 	.clk(clk_49m),
-	.n(10'd60),
-	.m(10'd824),
+	.n(vlm5030_cen_n),
+	.m(vlm5030_cen_m),
 	.cen({1'bZ, cen_3m58})
+);
+
+//Extra fractional divider to maintain a steady 1.536MHz for the SN76489 when Jailbreak runs at underclocked timings
+wire cen_1m5_adjust;
+jtframe_frac_cen sn76489_cen
+(
+	.clk(clk_49m),
+	.n(10'd25),
+	.m(10'd786),
+	.cen({1'bZ, cen_1m5_adjust})
 );
 
 //------------------------------------------------------------ CPU -------------------------------------------------------------//
@@ -374,13 +390,17 @@ sprite_lut_prom u6F
 //Generate chip enable for SN76489
 wire n_sn76489_ce = (~cs_sn76489 & sn76489_ready);
 
+//Select whether to use a fractional or integer clock divider for the YM2203 to maintain consistent sound pitch at both original
+//and underclocked timings
+wire cen_sn76489 = underclock ? cen_1m5_adjust : cen_1m5;
+
 //Sound chip 1 (Texas Instruments SN76489 - uses Arnim Laeuger's SN76489 implementation with bugfixes)
 wire [7:0] sn76489_raw;
 wire sn76489_ready;
 sn76489_top u6D
 (
 	.clock_i(clk_49m),
-	.clock_en_i(cen_1m5),
+	.clock_en_i(cen_sn76489),
 	.res_n_i(reset),
 	.ce_n_i(n_sn76489_ce),
 	.we_n_i(sn76489_ready),

@@ -17,6 +17,7 @@ An FPGA implementation of JAILBREAK for the MiSTer platform
 - SN76489 sound core by Arnim Laeuger with fixes by Ace and Enforcer
 - VLM5030 sound core by Arnim Laeuger (https://github.com/FPGAArcade/replay_common/tree/master/lib/sound/vlm5030)
 - All audio filters modeled
+- Option for normalized video timings to use with picky HDTVs and monitors (underclocks the game by ~1%)
 
 ## Installation
 Place `*.rbf` into the "_Arcade/cores" folder on your SD card.  Then, place `*.mra` into the "_Arcade" folder and ROM files from MAME into "games/mame".
@@ -55,8 +56,7 @@ Quick reference for folders and file placement:
 | A | Cycle weapons |
 
 ## Known Issues
-1) Accuracy of video timings cannot be guaranteed yet until they are measured on an original JAILBREAK PCB
-2) Audio filter accuracy cannot be guaranteed yet until the frequency response of an original JAILBREAK PCB is fully analyzed
+1) Audio filter accuracy cannot be guaranteed yet until the frequency response of an original JAILBREAK PCB is fully analyzed
 
 ## High Score Save/Load
 Save and load of high scores is supported for this core.
