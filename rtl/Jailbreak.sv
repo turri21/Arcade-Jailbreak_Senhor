@@ -35,7 +35,7 @@ module Jailbreak
 	
 	input         [19:0] dipsw,
 	
-	//This input serves to select a fractional divider to acheive 3.072MHz for the YM2203 depending on whether Scooter Shooter
+	//This input serves to select a fractional divider to acheive 1.576MHz for the SN76489 depending on whether Jailbreak
 	//runs with original or underclocked timings to normalize sync frequencies
 	input                underclock,
 	
@@ -92,7 +92,7 @@ selector DLSEL
 
 //------------------------------------------------------- Clock division -------------------------------------------------------//
 
-//Generate 6.144MHz, (inverted) 3.072MHz and 1.576MHz clock enables (clock division is normally handled inside the Konami 005849)
+//Generate 6.144MHz, 3.072MHz and 1.576MHz clock enables (clock division is normally handled inside the Konami 005849)
 //Also generate an extra clock enable for DC offset removal in the sound section
 reg [6:0] div = 7'd0;
 always_ff @(posedge clk_49m) begin
@@ -136,7 +136,7 @@ jtframe_frac_cen sn76489_cen
 (
 	.clk(clk_49m),
 	.n(10'd25),
-	.m(10'd786),
+	.m(10'd792),
 	.cen({1'bZ, cen_1m5_adjust})
 );
 
@@ -235,7 +235,6 @@ wire [15:0] spriterom_A;
 wire [14:0] tilerom_A;
 wire [7:0] k005849_D, tilemap_lut_A, sprite_lut_A;
 wire [4:0] color_A;
-wire [1:0] h_cnt;
 wire n_iocs, irq, firq, nmi;
 k005849 u8E
 (
@@ -390,7 +389,7 @@ sprite_lut_prom u6F
 //Generate chip enable for SN76489
 wire n_sn76489_ce = (~cs_sn76489 & sn76489_ready);
 
-//Select whether to use a fractional or integer clock divider for the YM2203 to maintain consistent sound pitch at both original
+//Select whether to use a fractional or integer clock divider for the SN76489 to maintain consistent sound pitch at both original
 //and underclocked timings
 wire cen_sn76489 = underclock ? cen_1m5_adjust : cen_1m5;
 

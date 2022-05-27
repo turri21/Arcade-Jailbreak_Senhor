@@ -5,7 +5,7 @@
 //
 //  Jailbreak for MiSTer
 //  Based on the Green Beret core by MiSTer-X
-//  Copyright (C) 2021 Blackwine, Ace, MiSTer-X, JimmyStones and Kitrinx
+//  Copyright (C) 2021, 2022 Blackwine, Ace, MiSTer-X, JimmyStones and Kitrinx
 //  (aka Rysha)
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a
@@ -38,7 +38,7 @@ module emu
 	input         RESET,
 
 	//Must be passed to hps_io module
-	inout  [45:0] HPS_BUS,
+	inout  [48:0] HPS_BUS,
 
 	//Base video clock. Usually equals to CLK_SYS.
 	output        CLK_VIDEO,
@@ -235,10 +235,10 @@ localparam CONF_STR = {
 	"V,v",`BUILD_DATE
 };
 
-wire        forced_scandoubler;
-wire  [1:0] buttons;
-wire [31:0] status;
-wire [10:0] ps2_key;
+wire         forced_scandoubler;
+wire   [1:0] buttons;
+wire [127:0] status;
+wire  [10:0] ps2_key;
 
 wire        ioctl_download;
 wire        ioctl_upload;
@@ -345,7 +345,7 @@ always @(posedge CLK_50M) begin
 			end
 			5: begin
 				cfg_address <= 7;
-				cfg_data <= underclock_r ? 3268298314 : 3639383488;
+				cfg_data <= underclock_r ? 3262113561 : 3639383488;
 				cfg_write <= 1;
 			end
 			7: begin
@@ -392,8 +392,8 @@ always @(posedge CLK_49M) begin
 			'h72: btn_down    <= pressed; // down
 			'h6B: btn_left    <= pressed; // left
 			'h74: btn_right   <= pressed; // right
-			'h14: btn_1       <= pressed; // ctrl						
-			'h11: btn_2       <= pressed; // alt						
+			'h14: btn_1       <= pressed; // ctrl
+			'h11: btn_2       <= pressed; // alt
 		endcase
 	end
 end
@@ -425,8 +425,8 @@ wire m_pause    = btn_pause    | joy[9];
 
 // PAUSE SYSTEM
 wire pause_cpu;
-wire [11:0] rgb_out;
-pause #(4,4,4,49) pause
+wire [23:0] rgb_out;
+pause #(8,8,8,49) pause
 (
 	.*,
 	.clk_sys(CLK_49M),
@@ -446,10 +446,24 @@ end
 
 wire hblank, vblank;
 wire hs, vs;
-wire [3:0] r,g,b;
+wire [3:0] r_out, g_out, b_out;
+
+//Adjust the color tones based on the measured outputs of the weighted resistor DAC
+//on the PCB
+wire [7:0] jailbreak_color[16] =
+'{
+	8'd0,   8'd14,  8'd31,  8'd46,
+	8'd67,  8'd81,  8'd98,  8'd112,
+	8'd143, 8'd157, 8'd174, 8'd188,
+	8'd209, 8'd224, 8'd241, 8'd255
+};
+wire [7:0] r = jailbreak_color[r_out];
+wire [7:0] g = jailbreak_color[g_out];
+wire [7:0] b = jailbreak_color[b_out];
+
 wire ce_pix;
 
-arcade_video #(256,12) arcade_video
+arcade_video #(256, 24) arcade_video
 (
 	.*,
 
@@ -497,9 +511,9 @@ Jailbreak Jailbreak_inst
 	.video_hblank(hblank),                                 // output video_hblank
 	.ce_pix(ce_pix),                                       // output ce_pix
 	
-	.video_r(r),                                           // output [2:0] video_r
-	.video_g(g),                                           // output [2:0] video_g
-	.video_b(b),                                           // output [1:0] video_b
+	.video_r(r_out),                                       // output [3:0] video_r
+	.video_g(g_out),                                       // output [3:0] video_g
+	.video_b(b_out),                                       // output [3:0] video_b
 
 	.ioctl_addr(ioctl_addr),
 	.ioctl_wr(ioctl_wr && !ioctl_index),
