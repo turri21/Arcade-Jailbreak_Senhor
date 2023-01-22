@@ -17,7 +17,7 @@
 	<rbf>Jailbreak</rbf>
 
 	<resolution>15kHz</resolution>
-	<rotation>no</rotation>
+	<rotation>horizontal</rotation>
 	<flip>no</flip>
 
 	<players>2 (alternating)</players>
